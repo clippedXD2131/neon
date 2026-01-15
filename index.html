@@ -4,221 +4,291 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Neon Clicker</title>
-
 <style>
+/* BODY */
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: black;
-    color: #00ffff;
-    display: flex;
-    overflow: hidden;
+    margin:0;
+    font-family: Arial,sans-serif;
+    background:black;
+    color:#00ffff;
+    overflow:hidden;
+    display:flex;
 }
 
+/* LOGIN OVERLAY */
+#loginOverlay {
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:black;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+    flex-direction:column;
+    opacity:1;
+    transition:opacity 1s ease;
+}
+
+.loginBox {
+    background:#000;
+    padding:40px;
+    border-radius:15px;
+    border:2px solid #00ffff;
+    text-align:center;
+    min-width:320px;
+    box-shadow:0 0 20px #00ffff;
+}
+.loginBox h1 { color:#00ffff; text-shadow:0 0 10px #00ffff; margin-bottom:30px; }
+.loginBox input {
+    padding:12px;
+    margin-bottom:15px;
+    border-radius:5px;
+    border:1px solid #00ffff;
+    background:black;
+    color:#00ffff;
+    text-align:center;
+    outline:none;
+    box-shadow:0 0 10px #00ffff inset;
+}
+.loginBox button {
+    padding:12px;
+    border-radius:5px;
+    border:2px solid #00ffff;
+    background:black;
+    color:#00ffff;
+    margin-top:10px;
+    cursor:pointer;
+    box-shadow:0 0 15px #00ffff;
+    transition:0.2s;
+}
+.loginBox button:hover { background:#00ffff; color:black; box-shadow:0 0 25px #00ffff; }
+#loginMessage { margin-top:10px; color:#ff00ff; text-shadow:0 0 5px #ff00ff; }
+
+/* PANELS */
 #leftPanel, #rightPanel {
-    width: 240px;
-    padding: 20px;
-    height: 100vh;
-    overflow-y: auto;
-    background: black;
+    width:240px; padding:20px; height:100vh; overflow-y:auto;
+    background:black; opacity:0; transition:opacity 1s ease;
 }
+#leftPanel { border-right:2px solid #00ffff; }
+#rightPanel { border-left:2px solid #00ffff; }
 
-#leftPanel { border-right: 2px solid #00ffff; }
-#rightPanel { border-left: 2px solid #00ffff; }
-
-#game {
-    flex: 1;
-    text-align: center;
-    padding-top: 50px;
-}
-
-h1 {
-    font-size: 3em;
-    text-shadow: 0 0 20px #00ffff;
-}
-
-h2 {
-    text-align: center;
-    text-shadow: 0 0 10px #00ffff;
-}
-
-#score {
-    font-size: 4em;
-    margin: 20px;
-}
-
+/* CENTER GAME */
+#game { flex:1; text-align:center; padding-top:50px; opacity:0; transition:opacity 1s ease; }
+h1 { font-size:3em; text-shadow:0 0 20px #00ffff; color:#00ffff; }
+h2 { text-align:center; text-shadow:0 0 10px #00ffff; }
+#score { font-size:4em; margin:20px; color:#00ffff; text-shadow:0 0 15px #00ffff; }
 #clickButton {
-    font-size: 1.5em;
-    padding: 20px 40px;
-    border-radius: 30px;
-    border: 2px solid #00ffff;
-    background: black;
-    color: #00ffff;
-    cursor: pointer;
+    font-size:1.5em; padding:20px 40px; border-radius:30px; border:2px solid #00ffff;
+    background:black; color:#00ffff; cursor:pointer; box-shadow:0 0 15px #00ffff; transition:0.2s;
 }
-
+#clickButton:hover { background:#00ffff; color:black; box-shadow:0 0 30px #00ffff; }
 .upgrade {
-    width: 100%;
-    margin-bottom: 10px;
-    padding: 10px;
-    border-radius: 20px;
-    border: 2px solid #00ffff;
-    background: black;
-    color: #00ffff;
-    cursor: pointer;
+    width:100%; margin-bottom:10px; padding:10px; border-radius:20px;
+    border:2px solid #00ffff; background:black; color:#00ffff; cursor:pointer;
+    box-shadow:0 0 10px #00ffff; transition:0.2s;
+}
+.upgrade:hover { background:#00ffff; color:black; box-shadow:0 0 25px #00ffff; }
+
+/* LEADERBOARD */
+.leaderboardEntry {
+    padding:5px;
+    margin-bottom:5px;
+    border:1px solid #00ffff;
+    border-radius:5px;
+    color:#00ffff;
+    text-shadow:0 0 5px #00ffff;
 }
 </style>
 </head>
-
 <body>
 
-<!-- CLICK UPGRADES -->
+<!-- LOGIN SCREEN -->
+<div id="loginOverlay">
+    <div class="loginBox">
+        <h1 id="loginTitle">Login Menu</h1>
+        <input type="text" id="username" placeholder="Email or Username">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="submitForm()">Login</button>
+        <button onclick="showSignUp()">Sign Up</button>
+        <p id="loginMessage"></p>
+    </div>
+</div>
+
+<!-- LEFT PANEL -->
 <div id="leftPanel">
     <h2>Click Upgrades</h2>
     <div id="clickUpgrades"></div>
 </div>
 
-<!-- GAME -->
+<!-- CENTER GAME -->
 <div id="game">
     <h1>Neon Clicker</h1>
     <div id="score">0</div>
     <button id="clickButton">CLICK</button>
 </div>
 
-<!-- AUTO UPGRADES -->
+<!-- RIGHT PANEL -->
 <div id="rightPanel">
     <h2>Auto Upgrades</h2>
     <div id="autoUpgrades"></div>
+    <h2>Leaderboard</h2>
+    <div id="leaderboard"></div>
 </div>
 
 <script>
-let score = 0;
-let clickPower = 1;
+// ---------------- LOGIN & ACCOUNT SYSTEM ----------------
+let accounts = JSON.parse(localStorage.getItem("accounts") || "{}");
+let currentUser = null;
+let isSignUp = false;
 
-const scoreDisplay = document.getElementById("score");
-const clickButton = document.getElementById("clickButton");
-const autoDiv = document.getElementById("autoUpgrades");
-const clickDiv = document.getElementById("clickUpgrades");
+const title = document.getElementById("loginTitle");
+function showSignUp(){ isSignUp=true; title.textContent="Sign Up Menu"; }
+function showLogin(){ isSignUp=false; title.textContent="Login Menu"; }
 
-/* FORMAT NUMBERS */
-function formatNumber(n) {
-    if (n >= 1e12) return (n / 1e12).toFixed(2) + "T";
-    if (n >= 1e9) return (n / 1e9).toFixed(2) + "B";
-    if (n >= 1e6) return (n / 1e6).toFixed(2) + "M";
-    if (n >= 1e3) return (n / 1e3).toFixed(2) + "K";
-    return n;
+function submitForm(){
+    const user = document.getElementById("username").value;
+    const pass = document.getElementById("password").value;
+    const msg = document.getElementById("loginMessage");
+
+    if(!user || !pass){ msg.textContent="Fill all fields"; return; }
+
+    if(isSignUp){
+        if(accounts[user]){ msg.textContent="Username exists"; return; }
+        accounts[user] = { password:pass, created: new Date().toISOString() };
+        localStorage.setItem("accounts", JSON.stringify(accounts));
+        currentUser = user;
+        msg.textContent="Account created! Logging in...";
+        fadeLogin();
+    } else {
+        if(accounts[user] && accounts[user].password===pass){
+            currentUser = user;
+            fadeLogin();
+        } else { msg.textContent="Invalid username/password"; return; }
+    }
 }
 
-/* STAGES (NAMES ONLY) */
-function getStage(count) {
-    return Math.min(Math.floor(count / 10), 4);
+function fadeLogin(){
+    const overlay = document.getElementById("loginOverlay");
+    overlay.style.opacity="0";
+    setTimeout(()=>{
+        overlay.style.display="none";
+        document.getElementById("leftPanel").style.opacity="1";
+        document.getElementById("rightPanel").style.opacity="1";
+        document.getElementById("game").style.opacity="1";
+        renderLeaderboard();
+    },1000);
 }
 
-/* NAME PATHS */
-const upgradePaths = {
-    Cursor: ["Cursor","Double Cursor","Mega Cursor","Auto Cursor","Omega Cursor"],
-    Grandma: ["Grandma","Super Grandma","Elder Grandma","Cosmic Grandma","Ancient Grandma"],
-    Factory: ["Factory","Advanced Factory","Turbo Factory","Hyper Factory","Omega Factory"],
-    Mine: ["Mine","Deep Mine","Crystal Mine","Core Mine","Void Mine"],
-    Bank: ["Bank","Gold Bank","Diamond Bank","Quantum Bank","Void Bank"],
-    "Grandma Locked In": ["Locked Grandma","Corrupted","Shadow","Ascended","Eternal"],
-    Simo: ["Simo","Sniper Simo","Elite Simo","Elite Sniper","Simo Häyhä"],
-    Best: ["Best","Ultimate","Supreme","Transcendent","Absolute"],
-    Rank: ["Rank","Noob","Beginner","Pro","God"]
+// ---------------- NEON CLICKER GAME ----------------
+let score=0; let clickPower=1;
+
+const scoreDisplay=document.getElementById("score");
+const clickButton=document.getElementById("clickButton");
+const autoDiv=document.getElementById("autoUpgrades");
+const clickDiv=document.getElementById("clickUpgrades");
+
+const upgradePaths={
+Cursor:["Cursor","Double Cursor","Mega Cursor","Auto Cursor","Omega Cursor"],
+Grandma:["Grandma","Super Grandma","Elder Grandma","Cosmic Grandma","Ancient Grandma"],
+Factory:["Factory","Advanced Factory","Turbo Factory","Hyper Factory","Omega Factory"],
+Mine:["Mine","Deep Mine","Crystal Mine","Core Mine","Void Mine"],
+Bank:["Bank","Gold Bank","Diamond Bank","Quantum Bank","Void Bank"],
+"Grandma Locked In":["Locked Grandma","Corrupted","Shadow","Ascended","Eternal"],
+Simo:["Simo","Sniper Simo","Elite Simo","Elite Sniper","Simo Häyhä"],
+Best:["Best","Ultimate","Supreme","Transcendent","Absolute"],
+Rank:["Rank","Noob","Beginner","Pro","God"]
 };
 
-/* AUTO UPGRADES */
-const autoUpgrades = [
-    { name:"Cursor", cost:10, cps:1, count:0 },
-    { name:"Grandma", cost:50, cps:5, count:0 },
-    { name:"Factory", cost:200, cps:20, count:0 },
-    { name:"Mine", cost:500, cps:67, count:0 },
-    { name:"Bank", cost:1000, cps:100, count:0 },
-    { name:"Grandma Locked In", cost:1e6, cps:2e6, count:0 },
-    { name:"Simo", cost:2e8, cps:1e8, count:0 },
-    { name:"Best", cost:1e10, cps:5e9, count:0 },
-    { name:"Rank", cost:1e12, cps:1e11, count:0 }
+const autoUpgrades=[
+{name:"Cursor", cost:10, cps:1, count:0},
+{name:"Grandma", cost:50, cps:5, count:0},
+{name:"Factory", cost:200, cps:20, count:0},
+{name:"Mine", cost:500, cps:67, count:0},
+{name:"Bank", cost:1000, cps:100, count:0},
+{name:"Grandma Locked In", cost:1e6, cps:2e6, count:0},
+{name:"Simo", cost:2e8, cps:1e8, count:0},
+{name:"Best", cost:1e10, cps:5e9, count:0},
+{name:"Rank", cost:1e12, cps:1e11, count:0}
 ];
 
-/* CLICK UPGRADES (1:1 COPY) */
-const clickUpgrades = autoUpgrades.map(u => ({
-    name: u.name + " Click",
-    cost: u.cost,
-    power: u.cps,
-    count: 0
-}));
+const clickUpgrades=autoUpgrades.map(u=>({name:u.name+" Click", cost:u.cost, power:u.cps, count:0}));
 
-/* RENDER AUTO */
-function renderAuto() {
-    autoDiv.innerHTML = "";
+function formatNumber(n){
+    if(n>=1e12)return(n/1e12).toFixed(2)+"T";
+    if(n>=1e9)return(n/1e9).toFixed(2)+"B";
+    if(n>=1e6)return(n/1e6).toFixed(2)+"M";
+    if(n>=1e3)return(n/1e3).toFixed(2)+"K";
+    return n;
+}
+function getStage(count){ return Math.min(Math.floor(count/10),4); }
+
+function renderAuto(){
+    autoDiv.innerHTML="";
     autoUpgrades.forEach((u,i)=>{
-        const stage = getStage(u.count);
-        const btn = document.createElement("button");
-        btn.className = "upgrade";
-        btn.textContent = `${upgradePaths[u.name][stage]} (${u.count}) - ${formatNumber(u.cost)}`;
-        btn.onclick = ()=>buyAuto(i);
+        const stage=getStage(u.count);
+        const btn=document.createElement("button");
+        btn.className="upgrade";
+        btn.textContent=`${upgradePaths[u.name][stage]} (${u.count}) - ${formatNumber(u.cost)}`;
+        btn.onclick=()=>buyAuto(i);
         autoDiv.appendChild(btn);
     });
 }
-
-/* RENDER CLICK */
-function renderClick() {
-    clickDiv.innerHTML = "";
+function renderClick(){
+    clickDiv.innerHTML="";
     clickUpgrades.forEach((u,i)=>{
-        const btn = document.createElement("button");
-        btn.className = "upgrade";
-        btn.textContent = `${u.name} (${u.count}) +${formatNumber(u.power)} | ${formatNumber(u.cost)}`;
-        btn.onclick = ()=>buyClick(i);
+        const btn=document.createElement("button");
+        btn.className="upgrade";
+        btn.textContent=`${u.name} (${u.count}) +${formatNumber(u.power)} | ${formatNumber(u.cost)}`;
+        btn.onclick=()=>buyClick(i);
         clickDiv.appendChild(btn);
     });
 }
+function buyAuto(i){ const u=autoUpgrades[i]; if(score>=u.cost){ score-=u.cost; u.count++; u.cost=Math.floor(u.cost*1.5); updateScore(); } }
+function buyClick(i){ const u=clickUpgrades[i]; if(score>=u.cost){ score-=u.cost; u.count++; clickPower+=u.power; u.cost=Math.floor(u.cost*1.5); updateScore(); } }
 
-/* BUY AUTO */
-function buyAuto(i) {
-    const u = autoUpgrades[i];
-    if (score >= u.cost) {
-        score -= u.cost;
-        u.count++;
-        u.cost = Math.floor(u.cost * 1.5);
-        renderAll();
-    }
+// ---------------- LEADERBOARD ----------------
+function saveScore(user, score){
+    if(!user) return;
+    let leaderboard = JSON.parse(localStorage.getItem("leaderboard") || "{}");
+    leaderboard[user] = Math.max(leaderboard[user] || 0, score);
+    localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+    renderLeaderboard();
 }
 
-/* BUY CLICK */
-function buyClick(i) {
-    const u = clickUpgrades[i];
-    if (score >= u.cost) {
-        score -= u.cost;
-        u.count++;
-        clickPower += u.power;
-        u.cost = Math.floor(u.cost * 1.5);
-        renderAll();
-    }
-}
-
-/* CLICK */
-clickButton.onclick = () => {
-    score += clickPower;
-    renderAll();
-};
-
-/* AUTO CPS */
-setInterval(() => {
-    autoUpgrades.forEach(u => {
-        score += u.cps * u.count;
+function renderLeaderboard(){
+    const lbDiv = document.getElementById("leaderboard");
+    let leaderboard = JSON.parse(localStorage.getItem("leaderboard") || "{}");
+    let arr = Object.entries(leaderboard).sort((a,b)=>b[1]-a[1]);
+    lbDiv.innerHTML="";
+    arr.slice(0,10).forEach(([user,score],i)=>{
+        const div = document.createElement("div");
+        div.className="leaderboardEntry";
+        div.textContent=`${i+1}. ${user}: ${formatNumber(score)}`;
+        lbDiv.appendChild(div);
     });
-    renderAll();
-}, 1000);
+}
 
-/* UPDATE */
-function renderAll() {
-    scoreDisplay.textContent = formatNumber(score);
+// Update score and leaderboard
+function updateScore(){
+    scoreDisplay.textContent=formatNumber(score);
     renderAuto();
     renderClick();
+    if(currentUser) saveScore(currentUser, score);
 }
 
-renderAll();
-</script>
+clickButton.onclick = () => { 
+    score += clickPower; 
+    updateScore(); 
+};
 
+setInterval(()=>{
+    autoUpgrades.forEach(u=>{ score+=u.cps*u.count; });
+    updateScore();
+},1000);
+
+renderAll();
+function renderAll(){ updateScore(); }
+</script>
 </body>
 </html>
